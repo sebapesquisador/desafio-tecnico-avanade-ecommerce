@@ -1,0 +1,195 @@
+### E-Commerce Microservices API Tests
+### Use o REST Client extension no VS Code para executar estas requisições
+
+@inventoryUrl = http://localhost:5002/api/products
+@salesUrl = http://localhost:5003/api/orders
+@authUrl = http://localhost:5001/api/auth
+
+###############################################
+# INVENTORY SERVICE TESTS
+###############################################
+
+### 1. Get all products
+GET {{inventoryUrl}}
+Accept: application/json
+
+### 2. Get specific product
+GET {{inventoryUrl}}/{{productId}}
+Accept: application/json
+
+### 3. Create new product
+POST {{inventoryUrl}}
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "name": "Smartphone Samsung Galaxy",
+  "description": "Smartphone Samsung Galaxy S24 256GB",
+  "price": 2999.99,
+  "stock": 50,
+  "category": "Electronics"
+}
+
+### 4. Update product
+PUT {{inventoryUrl}}/{{productId}}
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "name": "Smartphone Samsung Galaxy (Updated)",
+  "description": "Smartphone Samsung Galaxy S24 256GB - Promoção",
+  "price": 2499.99,
+  "stock": 45,
+  "category": "Electronics",
+  "isActive": true
+}
+
+### 5. Update stock
+PATCH {{inventoryUrl}}/{{productId}}/stock
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "newStock": 100,
+  "reason": "Restock - New arrival"
+}
+
+### 6. Check stock availability
+GET {{inventoryUrl}}/{{productId}}/stock/10
+Accept: application/json
+
+### 7. Get products by category
+GET {{inventoryUrl}}/category/Electronics
+Accept: application/json
+
+### 8. Delete product
+DELETE {{inventoryUrl}}/{{productId}}
+Authorization: Bearer {{token}}
+
+###############################################
+# AUTHENTICATION SERVICE TESTS
+###############################################
+
+### 9. Register new user
+POST {{authUrl}}/register
+Content-Type: application/json
+
+{
+  "email": "test@example.com",
+  "password": "Test123!",
+  "confirmPassword": "Test123!",
+  "name": "Test User"
+}
+
+### 10. Login user
+POST {{authUrl}}/login
+Content-Type: application/json
+
+{
+  "email": "test@example.com",
+  "password": "Test123!"
+}
+
+### 11. Refresh token
+POST {{authUrl}}/refresh-token
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "refreshToken": "{{refreshToken}}"
+}
+
+###############################################
+# SALES SERVICE TESTS  
+###############################################
+
+### 12. Create new order
+POST {{salesUrl}}
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "customerId": "customer@example.com",
+  "items": [
+    {
+      "productId": "{{productId}}",
+      "quantity": 2,
+      "price": 2999.99
+    }
+  ]
+}
+
+### 13. Get all orders
+GET {{salesUrl}}
+Authorization: Bearer {{token}}
+
+### 14. Get specific order
+GET {{salesUrl}}/{{orderId}}
+Authorization: Bearer {{token}}
+
+### 15. Update order status
+PATCH {{salesUrl}}/{{orderId}}/status
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "status": "Shipped"
+}
+
+###############################################
+# API GATEWAY TESTS
+###############################################
+
+### 16. Get products via Gateway
+GET http://localhost:5000/api/inventory/products
+Accept: application/json
+
+### 17. Create order via Gateway
+POST http://localhost:5000/api/sales/orders
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "customerId": "customer@example.com", 
+  "items": [
+    {
+      "productId": "{{productId}}",
+      "quantity": 1,
+      "price": 2999.99
+    }
+  ]
+}
+
+### 18. Authenticate via Gateway
+POST http://localhost:5000/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "test@example.com",
+  "password": "Test123!"
+}
+
+###############################################
+# HEALTH CHECK TESTS
+###############################################
+
+### 19. Inventory Health Check
+GET http://localhost:5002/health
+
+### 20. Sales Health Check  
+GET http://localhost:5003/health
+
+### 21. Auth Health Check
+GET http://localhost:5001/health
+
+### 22. Gateway Health Check
+GET http://localhost:5000/health
+
+###############################################
+# VARIABLES (Update with real values)
+###############################################
+
+# @productId = replace-with-real-product-id
+# @orderId = replace-with-real-order-id
+# @token = replace-with-jwt-token-after-login
+# @refreshToken = replace-with-refresh-token
